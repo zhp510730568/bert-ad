@@ -15,3 +15,13 @@
 
 ## 测试
 表1是改进bert的训练速度，原始bert单卡对应长度速度分别是100examples/sec、30examples/sec、16examples/sec和8examples/sec，速度随显卡数增多成线性增长，相同num_train_epochs训练速度大幅缩短。即使改进bert使用单卡也要比原bert要提升百分之十左右，像p100显卡，显存16G，对max_seq_length较短的训练数据使用改进bert配置两个子图能够明显提升训练速度，显卡利用率要显著提高。多次测试对比，改进bert参数n_gpus设置为2和原bert模型训练准确率相比几乎相同，提高n_gpus为6，准确率有零点几的百分比下降，后续会改进优化方法并进行更多测试。
+
+![](https://github.com/zhp510730568/bert-ad/blob/master/%E9%80%9F%E5%BA%A6%E5%AF%B9%E6%AF%94.png)
+## 改进
+这种方式显然不适合GPU量很大的模型训练，测试机器都是单机多卡，GPU卡数量不多，同步代价比较低。这种方式显然不适合需要使用大量GPU进行加速的训练，这就需要使用分布式方式进行训练，但tensorflow提供的分布式方案存在GPU利用率低下的问题，有公司测试结果显示GPU利用率在50%左右，百度提出了新的梯度更新方法，使用不同的算法来平均梯度，并让这些梯度在所有节点之间交流，这被称为 ring-allreduce，并开源了tensorflow实现，github地址如下列表。除此之外，Uber也开源tensorflow的实现，开源项目是Horovod，相比ring-allreduce做了一些性能优化，并大幅提高易用性。
+
+ring-allreduce blog: http://andrew.gibiansky.com/blog/machine-learning/baidu-allreduce/
+
+ring-allreduce github: https://github.com/baidu-research/tensorflow-allreduce
+
+Horovod github: https://github.com/horovod/horovod
