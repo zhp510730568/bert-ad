@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-@Author: zhangpengpeng
+@Author: 熊猫侠客
 @Date:   2019-06-28
 """
 import os
